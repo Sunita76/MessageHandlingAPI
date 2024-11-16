@@ -1,6 +1,6 @@
 ﻿using MessageHandlingCore.Interfaces;
 using MessageHandlingCore.Models;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace MessageHandlingInfrastructure.Repositories
 {
@@ -66,19 +66,35 @@ namespace MessageHandlingInfrastructure.Repositories
         }
         public int DeleteMultipleMessages(List<int> messageIds)
         {
-
-            var messagesToRemove =  context.Messages
-                                            .Where(message => messageIds.Contains(message.Id))
-                                            .ToList();
-
-            if (messagesToRemove.Any())
+            if (messageIds == null || !messageIds.Any())
             {
-                context.Messages.RemoveRange(messagesToRemove);
-                context.SaveChanges();
-                return messagesToRemove.Count();
+                return 0;
             }
-            return 0;
+
+            // Create a parameterized SQL query for safe execution
+            var ids = string.Join(",", messageIds); // Convert IDs to a comma-separated string
+            var sql = $"DELETE FROM Messages WHERE Id IN ({ids})";
+
+            // Execute the raw SQL
+            var rowsAffected = context.Database.ExecuteSqlRaw(sql);
+
+            return rowsAffected;
         }
+        //public int DeleteMultipleMessages(List<int> messageIds)
+        //{
+
+        //    var messagesToRemove =  context.Messages
+        //                                    .Where(message => messageIds.Contains(message.Id))
+        //                                    .ToList();
+
+        //    if (messagesToRemove.Any())
+        //    {
+        //        context.Messages.RemoveRange(messagesToRemove);
+        //        context.SaveChanges();
+        //        return messagesToRemove.Count();
+        //    }
+        //    return 0;
+        //}
 
     }
 }
