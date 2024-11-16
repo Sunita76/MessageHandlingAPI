@@ -80,21 +80,7 @@ namespace MessageHandlingInfrastructure.Repositories
 
             return rowsAffected;
         }
-        //public int DeleteMultipleMessages(List<int> messageIds)
-        //{
-
-        //    var messagesToRemove =  context.Messages
-        //                                    .Where(message => messageIds.Contains(message.Id))
-        //                                    .ToList();
-
-        //    if (messagesToRemove.Any())
-        //    {
-        //        context.Messages.RemoveRange(messagesToRemove);
-        //        context.SaveChanges();
-        //        return messagesToRemove.Count();
-        //    }
-        //    return 0;
-        //}
+       
 
     }
 }
