@@ -1,5 +1,6 @@
 ﻿using MessageHandlingCore.Interfaces;
 using MessageHandlingCore.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace MessageHandlingInfrastructure.Repositories
@@ -15,8 +16,8 @@ namespace MessageHandlingInfrastructure.Repositories
         {
             Message message = new Message
             {
-                ReceiverName = receiverName,
-                SenderName = senderName,
+                ReceiverName = receiverName.Trim(),
+                SenderName = senderName.Trim(),
                 Content = content,
                 SentDate = DateTime.UtcNow,
                 IsFetched = false
@@ -30,7 +31,8 @@ namespace MessageHandlingInfrastructure.Repositories
 
         public List<Message> GetNewMessages(string receiverName)
         {
-            var messages = context.Messages.Where(message => (message.ReceiverName.Trim().ToLower() == receiverName.Trim().ToLower()) && !message.IsFetched).ToList();
+            string trimmedReceiverName = receiverName.Trim();
+            var messages = context.Messages.Where(message => (message.ReceiverName == trimmedReceiverName) && !message.IsFetched).ToList();
             foreach(var message in messages)
             {
                 message.IsFetched = true;
@@ -42,8 +44,9 @@ namespace MessageHandlingInfrastructure.Repositories
 
         public List<Message> GetMessagesByRange(string receiverName, int start, int end)
         {
-           List<Message> messages = context.Messages
-                 .Where(message => message.ReceiverName.Trim().ToLower() == receiverName.Trim().ToLower())
+            string trimmedReceiverName = receiverName.Trim();
+            List<Message> messages = context.Messages
+                 .Where(message => message.ReceiverName == trimmedReceiverName)
                  .OrderBy(message => message.ReceiverName)
                  .ThenBy(message => message.SentDate)
                  .Skip(start)
@@ -70,13 +73,13 @@ namespace MessageHandlingInfrastructure.Repositories
             {
                 return 0;
             }
+           
+            var parameters = messageIds.Select((id, index) => new SqlParameter($"@p{index}", id)).ToArray();
+            var sql = $"DELETE FROM Messages WHERE Id IN ({string.Join(", ", parameters.Select(p => p.ParameterName))})";
 
-            // Create a parameterized SQL query for safe execution
-            var ids = string.Join(",", messageIds); // Convert IDs to a comma-separated string
-            var sql = $"DELETE FROM Messages WHERE Id IN ({ids})";
+            // Execute the raw SQL with parameters
+            var rowsAffected = context.Database.ExecuteSqlRaw(sql, parameters);
 
-            // Execute the raw SQL
-            var rowsAffected = context.Database.ExecuteSqlRaw(sql);
 
             return rowsAffected;
         }
