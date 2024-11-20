@@ -2,6 +2,7 @@
 using MessageHandlingCore.Models;
 using MessageHandlingInfrastructure.UseCases;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace MessageHandlingAPI.Controllers
 {
@@ -35,9 +36,14 @@ namespace MessageHandlingAPI.Controllers
                 return Ok(response);
 
             }
+            
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = ex.Message
+                });
 
             }
 
@@ -55,7 +61,11 @@ namespace MessageHandlingAPI.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = ex.Message
+                });
             }
 
         }
@@ -69,9 +79,13 @@ namespace MessageHandlingAPI.Controllers
                 var response = getMessagesByRangeUseCase.Execute(receiver, start, end);
                 return Ok(response);
             }
-            catch(Exception e)
-            { 
-                return BadRequest(e.Message); 
+            catch(Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, new
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = ex.Message
+                });
             }   
 
         }
@@ -88,7 +102,11 @@ namespace MessageHandlingAPI.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = ex.Message
+                });
             }
 
         }
@@ -104,7 +122,11 @@ namespace MessageHandlingAPI.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = ex.Message
+                });
             }
         }
 
